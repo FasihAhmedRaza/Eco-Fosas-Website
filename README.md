@@ -40,6 +40,6 @@ The photographs were provided by the user. Images with text overlaid on them hav
 
 ## Language ES / EN
 
-The site has an ES | EN switch in the header. It remembers the visitor's choice and opens in English if their browser is set to English. Direct links: `index.html?lang=en` or `index.html?lang=es`.
+The site has an ES | EN switch in the header. It always opens in Spanish by default and remembers the visitor's choice if they switch. Direct links: `index.html?lang=en` or `index.html?lang=es`.
 
 The English text lives in the `const EN` block at the end of `index.html`. To change a translation, edit its line there.

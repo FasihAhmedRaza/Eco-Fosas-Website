@@ -13,4 +13,4 @@ POR COMPLETAR ANTES DE PUBLICAR: número oficial, email comercial, razón social
 Las fotografías son material proporcionado por el usuario. Las imágenes con textos superpuestos se han conservado sin alteraciones. No se presentan testimonios, acreditaciones ni certificaciones inexistentes.
 
 
-IDIOMA ES / EN: el sitio trae un selector ES | EN en el encabezado. Recuerda la elección del visitante y abre en inglés si su navegador está en inglés. Enlaces directos: index.html?lang=en o index.html?lang=es. Los textos en inglés están en el bloque 'const EN' al final de index.html; para cambiar uno, edita su línea.
+IDIOMA ES / EN: el sitio trae un selector ES | EN en el encabezado. Siempre abre en español por defecto y recuerda la elección del visitante si la cambia. Enlaces directos: index.html?lang=en o index.html?lang=es. Los textos en inglés están en el bloque 'const EN' al final de index.html; para cambiar uno, edita su línea.

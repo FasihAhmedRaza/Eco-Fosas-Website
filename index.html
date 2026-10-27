@@ -861,7 +861,7 @@ const CONFIG = { whatsapp: '' };
   window.EF_APPLY = () => walk(document.body);
   document.querySelectorAll('.lang button').forEach(b=>b.addEventListener('click',()=>apply(b.dataset.lang,true)));
   let start='es';
-  try{const q=new URLSearchParams(location.search).get('lang');const saved=localStorage.getItem('ecofosas-lang');start=q||saved||((navigator.language||'').toLowerCase().startsWith('en')?'en':'es');}catch(e){start=(navigator.language||'').toLowerCase().startsWith('en')?'en':'es';}
+  try{const q=new URLSearchParams(location.search).get('lang');const saved=localStorage.getItem('ecofosas-lang');start=q||saved||'es';}catch(e){}
   apply(start,false);
 })();
 </script>
