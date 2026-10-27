@@ -1,0 +1,16 @@
+ECO FOSAS — SITIO WEB DE PRESENTACIÓN
+
+INICIO: abrir index.html en un navegador. Los archivos de /assets deben mantenerse en la misma carpeta.
+
+PUBLICAR: subir toda la carpeta a un hosting estático (Netlify, Cloudflare Pages o similar) y conectar el dominio del negocio.
+
+WHATSAPP: en index.html, cerca del final, buscar CONFIG={whatsapp:''}; e insertar el número oficial con código 56, sin el signo +, guiones ni espacios. Después de esto, el formulario abrirá un mensaje prellenado en WhatsApp, pero NO crea ni confirma una reserva automáticamente.
+
+RESERVAS REALES: para reservar horarios, bloquear disponibilidad, recibir formularios sin WhatsApp, recordatorios y panel de administración, conectar un backend / CRM / plataforma de reservas. No se incluye backend en este demo.
+
+POR COMPLETAR ANTES DE PUBLICAR: número oficial, email comercial, razón social/RUT si corresponde, política de privacidad, tratamiento de datos y consentimiento, confirmación de cobertura, plazos, documentación, y requisitos sanitarios por caso. Los trabajos, lugares y servicios proceden del material proporcionado por el cliente.
+
+Las fotografías son material proporcionado por el usuario. Las imágenes con textos superpuestos se han conservado sin alteraciones. No se presentan testimonios, acreditaciones ni certificaciones inexistentes.
+
+
+IDIOMA ES / EN: el sitio trae un selector ES | EN en el encabezado. Recuerda la elección del visitante y abre en inglés si su navegador está en inglés. Enlaces directos: index.html?lang=en o index.html?lang=es. Los textos en inglés están en el bloque 'const EN' al final de index.html; para cambiar uno, edita su línea.

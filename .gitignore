@@ -1,0 +1,14 @@
+# macOS / Windows
+.DS_Store
+Thumbs.db
+
+# Vercel CLI (created by `vercel` / `vercel link`)
+.vercel
+
+# Local secrets, if any are added later
+.env
+.env.*
+
+# Editors
+.vscode/
+.idea/
