@@ -12,13 +12,13 @@ Upload the whole folder to a static host (Netlify, Cloudflare Pages or similar) 
 
 ## WhatsApp
 
-In `index.html`, near the end, find this line:
+The official number, +56 9 5767 4277, is set in `index.html` near the end:
 
 ```js
-const CONFIG = { whatsapp: '' };
+const CONFIG = { whatsapp: '56957674277' };
 ```
 
-Insert the official number with the country code 56, without the `+` sign, dashes or spaces (e.g. `'56912345678'`). Once this is set, the form opens a pre-filled message in WhatsApp, but it does **NOT** create or confirm a booking automatically.
+To change it, use the country code 56, without the `+` sign, dashes or spaces. The quote form opens WhatsApp with a pre-filled message, but it does **NOT** create or confirm a booking automatically. The number is also written out by hand in the "¿Prefieres hablar directo?" card and the footer.
 
 ## Real bookings
 
@@ -26,7 +26,6 @@ To book time slots, block out availability, receive forms without WhatsApp, send
 
 ## To complete before publishing
 
-- Official phone number
 - Business email
 - Company legal name / RUT, if applicable
 - Privacy policy, data handling and consent

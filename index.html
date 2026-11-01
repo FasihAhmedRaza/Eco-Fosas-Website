@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"HomeAndConstructionBusiness","name":"Eco Fosas","description":"Instalación integral de fosas sépticas en Ñuble y Maule","areaServed":[{"@type":"AdministrativeArea","name":"Región de Ñuble"},{"@type":"AdministrativeArea","name":"Región del Maule"}],"address":{"@type":"PostalAddress","addressCountry":"CL"},"image":"assets/foto-8.jpg","logo":"assets/logo-ecofosas.png"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"HomeAndConstructionBusiness","name":"Eco Fosas","telephone":"+56957674277","description":"Instalación integral de fosas sépticas en Ñuble y Maule","areaServed":[{"@type":"AdministrativeArea","name":"Región de Ñuble"},{"@type":"AdministrativeArea","name":"Región del Maule"}],"address":{"@type":"PostalAddress","addressCountry":"CL"},"image":"assets/foto-8.jpg","logo":"assets/logo-ecofosas.png"}</script>
 <style>
 /* Layout: deep forest hero with photo stack, clean white working sections on a cool neutral ground, brand yellow kept for primary actions only */
 :root{
@@ -200,6 +200,7 @@ p{margin:0}
 .checks .ico{color:var(--green);background:var(--mint);border-radius:50%;padding:4px;stroke-width:2.6;width:26px;height:26px}
 .contact-card{margin-top:32px;padding:22px 24px;border-radius:var(--r);background:var(--bg);border:1px solid var(--line);font-size:15px;color:var(--muted)}
 .contact-card strong{display:block;font-family:var(--display);font-weight:600;color:var(--ink);font-size:17px;margin-bottom:4px}
+.contact-card .btn{margin-top:16px}
 .form{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:40px;box-shadow:var(--shadow-lg)}
 .form h3{font-size:24px}
 .form>p{color:var(--muted);font-size:15px;margin:8px 0 28px}
@@ -581,7 +582,7 @@ p{margin:0}
         <li><svg class="ico"><use href="#i-check"/></svg>Fecha sujeta a confirmación del equipo</li>
         <li><svg class="ico"><use href="#i-check"/></svg>Atención en Ñuble y Maule</li>
       </ul>
-      <div class="contact-card"><strong>¿Prefieres hablar directo?</strong>Escríbenos por WhatsApp con tu comuna y una foto del terreno, y te orientamos.</div>
+      <div class="contact-card"><strong>¿Prefieres hablar directo?</strong>Escríbenos por WhatsApp con tu comuna y una foto del terreno, y te orientamos.<br><a class="btn btn-green wa-link" href="#cotizar">WhatsApp +56 9 5767 4277 <svg class="ico"><use href="#i-arrow"/></svg></a></div>
     </div>
     <form class="form" id="quoteForm" novalidate>
       <h3>Solicitar cotización o visita</h3>
@@ -597,7 +598,7 @@ p{margin:0}
         <label class="field" for="f-usuarios">Personas en la vivienda<select id="f-usuarios" name="usuarios"><option>No lo sé</option><option>1 a 2 personas</option><option>3 a 4 personas</option><option>5 a 6 personas</option><option>7 o más personas</option></select></label>
         <label class="field full" for="f-det">Detalles del terreno<textarea id="f-det" name="detalles" rows="4" placeholder="Accesos para maquinaria, tipo de suelo, si la casa ya está construida, distancia a pozos o esteros..."></textarea></label>
       </div>
-      <button class="btn btn-green" type="submit">Preparar solicitud <svg class="ico"><use href="#i-arrow"/></svg></button>
+      <button class="btn btn-green" type="submit">Enviar por WhatsApp <svg class="ico"><use href="#i-arrow"/></svg></button>
       <p class="fine">La fecha indicada es una preferencia, no una reserva. La factibilidad del sistema y los requisitos sanitarios se evalúan en cada proyecto.</p>
       <div class="result" id="result" hidden aria-live="polite"></div>
     </form>
@@ -633,7 +634,7 @@ p{margin:0}
         <p>Instalación integral de fosas sépticas. Evaluación, excavación, materiales y montaje a cargo de un solo equipo en Ñuble y Maule.</p>
       </div>
       <div><h4>Sitio</h4><nav aria-label="Pie de página"><a href="#servicios">Servicios</a><a href="#como-funciona">Cómo funciona</a><a href="#proyectos">Proyectos</a><a href="#preguntas">Preguntas</a></nav></div>
-      <div><h4>Contacto</h4><nav aria-label="Contacto"><a href="#cotizar">Solicitar cotización</a><a href="#cobertura">Ñuble y Maule, Chile</a><a href="#cotizar" class="wa-link">WhatsApp</a></nav></div>
+      <div><h4>Contacto</h4><nav aria-label="Contacto"><a href="#cotizar">Solicitar cotización</a><a href="#cobertura">Ñuble y Maule, Chile</a><a href="#cotizar" class="wa-link">WhatsApp +56 9 5767 4277</a></nav></div>
     </div>
     <div class="foot-bottom"><span>© <span id="year">2026</span> Eco Fosas. Todos los derechos reservados.</span><span>* Plazo habitual, sujeto a condiciones del terreno.</span></div>
   </div>
@@ -653,7 +654,7 @@ p{margin:0}
 
 <script>
 // CONFIGURACIÓN: número oficial de WhatsApp con código de país, sin + ni espacios. Ej: '56912345678'
-const CONFIG = { whatsapp: '' };
+const CONFIG = { whatsapp: '56957674277' };
 
 (function(){
   const T = s => (window.EF_T ? window.EF_T(s) : s);
@@ -721,12 +722,14 @@ const CONFIG = { whatsapp: '' };
     const pre = document.createElement('pre'); pre.textContent = msg;
     out.innerHTML = '';
     const t = document.createElement('strong');
-    t.textContent = CONFIG.whatsapp ? T('Tu solicitud está lista. Ábrela en WhatsApp y presiona enviar.') : T('Tu solicitud está lista. Cópiala y envíala a nuestro WhatsApp.');
+    t.textContent = CONFIG.whatsapp ? T('Abrimos WhatsApp con tu solicitud: presiona enviar. Si no se abrió, toca el botón.') : T('Tu solicitud está lista. Cópiala y envíala a nuestro WhatsApp.');
     const row = document.createElement('div'); row.className = 'row';
     if (CONFIG.whatsapp) {
       const a = document.createElement('a'); a.className = 'btn btn-yellow'; a.target = '_blank'; a.rel = 'noopener';
       a.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg); a.textContent = T('Abrir WhatsApp');
       row.append(a);
+      // opens straight away; the button above stays as a fallback if the browser blocks it
+      window.open(a.href, '_blank', 'noopener');
     }
     const c = document.createElement('button'); c.type = 'button'; c.className = 'btn btn-green'; c.textContent = T('Copiar solicitud');
     c.onclick = async () => {
@@ -795,7 +798,7 @@ const CONFIG = { whatsapp: '' };
     "Nombre y apellido *":"Full name *","Teléfono / WhatsApp *":"Phone / WhatsApp *","Correo electrónico":"Email","Región *":"Region *","Selecciona":"Select","Otra región":"Other region",
     "Comuna o localidad *":"Town or locality *","Servicio *":"Service *","Instalación completa de fosa séptica":"Complete septic tank installation","Evaluación de terreno":"Site assessment","Drenes o tuberías":"Drains or piping","Otro proyecto":"Other project",
     "Fecha preferida":"Preferred date","Personas en la vivienda":"People in the home","No lo sé":"I don't know","1 a 2 personas":"1 to 2 people","3 a 4 personas":"3 to 4 people","5 a 6 personas":"5 to 6 people","7 o más personas":"7 or more people",
-    "Detalles del terreno":"Site details","Preparar solicitud":"Prepare request",
+    "Detalles del terreno":"Site details","Enviar por WhatsApp":"Send via WhatsApp",
     "La fecha indicada es una preferencia, no una reserva. La factibilidad del sistema y los requisitos sanitarios se evalúan en cada proyecto.":"The date you choose is a preference, not a booking. System feasibility and health requirements are assessed for each project.",
     "Preguntas frecuentes":"Frequently asked questions","Resolvemos tus dudas.":"Your questions, answered.",
     "¿Qué incluye el servicio?":"What does the service include?",
@@ -826,7 +829,7 @@ const CONFIG = { whatsapp: '' };
     "Hola Eco Fosas, quiero solicitar una cotización.":"Hi Eco Fosas, I'd like to request a quote.",
     "Hola Eco Fosas, quiero cotizar una fosa séptica.":"Hi Eco Fosas, I'd like a quote for a septic tank.",
     "Nombre":"Name","Teléfono":"Phone","Correo":"Email","Región":"Region","Comuna":"Town","Servicio":"Service","Personas":"People","Detalles":"Details",
-    "Tu solicitud está lista. Ábrela en WhatsApp y presiona enviar.":"Your request is ready. Open it in WhatsApp and press send.",
+    "Abrimos WhatsApp con tu solicitud: presiona enviar. Si no se abrió, toca el botón.":"We opened WhatsApp with your request: press send. If it didn't open, tap the button.",
     "Tu solicitud está lista. Cópiala y envíala a nuestro WhatsApp.":"Your request is ready. Copy it and send it to our WhatsApp.",
     "Abrir WhatsApp":"Open WhatsApp","Copiar solicitud":"Copy request","Copiada":"Copied","Texto seleccionado":"Text selected"
   };
