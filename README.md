@@ -37,6 +37,14 @@ The jobs, places and services shown come from material provided by the client.
 
 The photographs were provided by the user. Images with text overlaid on them have been kept unaltered. The site does not show any testimonials, accreditations or certifications that don't exist.
 
+The `.jpg` / `.png` files in `assets/` are the master copies; keep them. The page shows the optimized WebP copies next to them: `foto-N-480.webp` and `foto-N-800.webp` (gallery and small screens), `foto-N.webp` (1200 px: hero and lightbox) and `logo-ecofosas-240.webp`. Social previews (`og:image`) still use the JPG.
+
+**Fonts:** Plus Jakarta Sans and Sora are self-hosted in `assets/fonts/` (latin and latin-ext files, SIL Open Font License; the license files are in the same folder). The page no longer loads anything from Google Fonts. The `@font-face` rules are at the top of the `<style>` block in `index.html`.
+
+**Favicon:** browser tabs use `favicon-64.png`; `favicon.png` (192 px) stays for larger icons.
+
+**Caching:** `vercel.json` tells browsers to keep everything in `assets/` (images, fonts, icons) for one year. If you replace a file, save it under a **new file name** (e.g. `foto-8-v2.webp`) and update `index.html`; reusing the old name means returning visitors keep seeing the old file.
+
 ## Language ES / EN
 
 The site has an ES | EN switch in the header. It always opens in Spanish by default and remembers the visitor's choice if they switch. Direct links: `index.html?lang=en` or `index.html?lang=es`.
