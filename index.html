@@ -288,7 +288,12 @@ p{margin:0}
   .steps{grid-template-columns:repeat(2,1fr)}
   .cov-grid{grid-template-columns:1fr 1fr}
   .region.ask{grid-column:1/-1}
-  .quote-side{position:static}
+  /* single column: the WhatsApp card moves below the form so the form starts sooner */
+  .quote-grid{gap:0}
+  .quote-side{position:static;display:contents}
+  .quote-side .eyebrow{justify-self:start}
+  .quote-grid .form{margin-top:40px}
+  .contact-card{order:1}
   .included .wrap{grid-template-columns:1fr;gap:14px}
 }
 @media (max-width:860px){
@@ -306,12 +311,19 @@ p{margin:0}
   .hero-facts div{padding:14px}
   .hero-facts strong{font-size:21px}
   .stamp{left:10px}
-  .services,.cov-grid,.fgrid,.steps{grid-template-columns:1fr}
+  .services,.cov-grid,.steps{grid-template-columns:1fr}
   .gallery{grid-template-columns:1fr 1fr;gap:12px}
   .shot .cap{flex-direction:column;align-items:flex-start;gap:6px;padding:12px}
   .shot .cap strong{font-size:14px}
-  .field.full{grid-column:auto}
-  .form{padding:24px}
+  /* form: short fields side by side (.pair), the rest full width, tighter spacing */
+  .fgrid{gap:12px}
+  .fgrid>.field:not(.pair){grid-column:1/-1}
+  .field{gap:6px}
+  .field input,.field select,.field textarea{padding:11px 12px}
+  .field.pair input,.field.pair select{padding-inline:10px}
+  .field textarea{height:96px}
+  .form>p{margin-bottom:20px}
+  .form{padding:22px 18px}
   .fgrid-foot{grid-template-columns:1fr 1fr}
   .fgrid-foot>div:first-child{grid-column:1/-1}
   .faq details{padding:0 18px}
@@ -604,8 +616,8 @@ p{margin:0}
         <label class="field" for="f-nombre">Nombre y apellido *<input id="f-nombre" name="nombre" required autocomplete="name" placeholder="Ej. María González"></label>
         <label class="field" for="f-tel">Teléfono / WhatsApp *<input id="f-tel" name="telefono" required inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></label>
         <label class="field" for="f-mail">Correo electrónico<input id="f-mail" name="correo" type="email" autocomplete="email" placeholder="nombre@correo.cl"></label>
-        <label class="field" for="f-region">Región *<select id="f-region" name="region" required><option value="">Selecciona</option><option>Ñuble</option><option>Maule</option><option>Otra región</option></select></label>
-        <label class="field" for="f-comuna">Comuna o localidad *<input id="f-comuna" name="comuna" required placeholder="Ej. San Carlos"></label>
+        <label class="field pair" for="f-region">Región *<select id="f-region" name="region" required><option value="">Selecciona</option><option>Ñuble</option><option>Maule</option><option>Otra región</option></select></label>
+        <label class="field pair" for="f-comuna">Comuna o localidad *<input id="f-comuna" name="comuna" required placeholder="Ej. San Carlos"></label>
         <label class="field" for="f-tipo">Servicio *<select id="f-tipo" name="tipo" required><option value="">Selecciona</option><option>Instalación completa de fosa séptica</option><option>Evaluación de terreno</option><option>Drenes o tuberías</option><option>Otro proyecto</option></select></label>
         <label class="field" for="f-fecha">Fecha preferida<input id="f-fecha" name="fecha" type="date"></label>
         <label class="field" for="f-usuarios">Personas en la vivienda<select id="f-usuarios" name="usuarios"><option>No lo sé</option><option>1 a 2 personas</option><option>3 a 4 personas</option><option>5 a 6 personas</option><option>7 o más personas</option></select></label>
