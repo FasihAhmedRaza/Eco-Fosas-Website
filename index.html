@@ -228,6 +228,7 @@ p{margin:0}
 .fine{font-size:12px;color:var(--muted);margin-top:14px}
 .result{margin-top:16px;padding:18px;border-radius:14px;background:var(--mint);border:1px solid var(--mint-2);font-size:14px}
 .result strong{display:block;margin-bottom:6px;color:var(--ink)}
+.result .saved{margin-bottom:12px;padding:10px 12px;border-radius:10px;background:var(--white);border:1px solid var(--mint-2);color:var(--green);font-weight:700}
 .result pre{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--white);border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0;max-height:220px;overflow:auto}
 .result .row{display:flex;gap:8px;flex-wrap:wrap}
 .result .btn{width:auto;margin:0;padding:11px 18px;font-size:14px}
@@ -698,7 +699,8 @@ function sendToCynx(form) {
     ['Detalles del terreno', get('detalles')],
   ].filter(([, value]) => value !== '').map(([label, value]) => label + ': ' + value).join('\n');
 
-  fetch(CYNX_FORM_URL, {
+  // resolves true only when Cynx answers 201 (saved); never throws
+  return fetch(CYNX_FORM_URL, {
     method: 'POST',
     headers: { 'Accept': 'application/json', 'Accept-Language': 'es' },
     body: new URLSearchParams({
@@ -711,7 +713,7 @@ function sendToCynx(form) {
       fax: get('fax'),
     }),
     keepalive: true,
-  }).catch(() => {});
+  }).then(r => r.status === 201).catch(() => false);
 }
 
 // Same rule as Cynx: 9 digits, 56 + 9 digits, or + and a country code (8-15 digits)
@@ -803,8 +805,14 @@ function phoneIsValid(typed) {
       a.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg); a.textContent = T('Abrir WhatsApp');
       row.append(a);
       // save a copy in Cynx without waiting, then open WhatsApp straight away;
-      // the button above stays as a fallback if the browser blocks it
-      sendToCynx(form);
+      // the button above stays as a fallback if the browser blocks it.
+      // The "received" note appears only once Cynx confirms it saved the request.
+      sendToCynx(form).then(saved => {
+        if (!saved) return;
+        const note = document.createElement('p'); note.className = 'saved';
+        note.textContent = T('También recibimos tu solicitud. Nuestro equipo te contactará pronto.');
+        out.prepend(note);
+      });
       window.open(a.href, '_blank', 'noopener');
     }
     const c = document.createElement('button'); c.type = 'button'; c.className = 'btn btn-green'; c.textContent = T('Copiar solicitud');
@@ -902,7 +910,7 @@ function phoneIsValid(typed) {
     "Idioma":"Language",
     /* mensajes del formulario */
     "Faltan datos":"Missing information","Completa:":"Please fill in:","No indicado":"Not provided",
-    "Revisa los datos":"Please check your details","El teléfono debe tener 9 dígitos, o + y el código de país.":"The phone number needs 9 digits, or + and the country code.","El correo electrónico no es válido.":"The email address is not valid.",
+    "Revisa los datos":"Please check your details","También recibimos tu solicitud. Nuestro equipo te contactará pronto.":"We've also received your request. Our team will contact you shortly.","El teléfono debe tener 9 dígitos, o + y el código de país.":"The phone number needs 9 digits, or + and the country code.","El correo electrónico no es válido.":"The email address is not valid.",
     "Hola Eco Fosas, quiero solicitar una cotización.":"Hi Eco Fosas, I'd like to request a quote.",
     "Hola Eco Fosas, quiero cotizar una fosa séptica.":"Hi Eco Fosas, I'd like a quote for a septic tank.",
     "Nombre":"Name","Teléfono":"Phone","Correo":"Email","Región":"Region","Comuna":"Town","Servicio":"Service","Personas":"People","Detalles":"Details",
