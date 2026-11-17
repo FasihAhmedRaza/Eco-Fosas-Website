@@ -613,16 +613,17 @@ p{margin:0}
       <h3>Solicitar cotización o visita</h3>
       <p>Los campos con * son obligatorios.</p>
       <div class="fgrid">
-        <label class="field" for="f-nombre">Nombre y apellido *<input id="f-nombre" name="nombre" required autocomplete="name" placeholder="Ej. María González"></label>
-        <label class="field" for="f-tel">Teléfono / WhatsApp *<input id="f-tel" name="telefono" required inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></label>
-        <label class="field" for="f-mail">Correo electrónico<input id="f-mail" name="correo" type="email" autocomplete="email" placeholder="nombre@correo.cl"></label>
-        <label class="field pair" for="f-region">Región *<select id="f-region" name="region" required><option value="">Selecciona</option><option>Ñuble</option><option>Maule</option><option>Otra región</option></select></label>
-        <label class="field pair" for="f-comuna">Comuna o localidad *<input id="f-comuna" name="comuna" required placeholder="Ej. San Carlos"></label>
-        <label class="field" for="f-tipo">Servicio *<select id="f-tipo" name="tipo" required><option value="">Selecciona</option><option>Instalación completa de fosa séptica</option><option>Evaluación de terreno</option><option>Drenes o tuberías</option><option>Otro proyecto</option></select></label>
+        <label class="field" for="f-nombre">Nombre y apellido *<input id="f-nombre" name="nombre" required maxlength="120" autocomplete="name" placeholder="Ej. María González"></label>
+        <label class="field" for="f-tel">Teléfono / WhatsApp *<input id="f-tel" name="telefono" required maxlength="30" inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></label>
+        <label class="field" for="f-mail">Correo electrónico<input id="f-mail" name="correo" type="email" maxlength="255" autocomplete="email" placeholder="nombre@correo.cl"></label>
+        <label class="field pair" for="f-region">Región *<select id="f-region" name="region" required><option value="">Selecciona</option><option value="Ñuble">Ñuble</option><option value="Maule">Maule</option><option value="Otra región">Otra región</option></select></label>
+        <label class="field pair" for="f-comuna">Comuna o localidad *<input id="f-comuna" name="comuna" required maxlength="80" placeholder="Ej. San Carlos"></label>
+        <label class="field" for="f-tipo">Servicio *<select id="f-tipo" name="tipo" required><option value="">Selecciona</option><option value="Instalación completa de fosa séptica">Instalación completa de fosa séptica</option><option value="Evaluación de terreno">Evaluación de terreno</option><option value="Drenes o tuberías">Drenes o tuberías</option><option value="Otro proyecto">Otro proyecto</option></select></label>
         <label class="field" for="f-fecha">Fecha preferida<input id="f-fecha" name="fecha" type="date"></label>
-        <label class="field" for="f-usuarios">Personas en la vivienda<select id="f-usuarios" name="usuarios"><option>No lo sé</option><option>1 a 2 personas</option><option>3 a 4 personas</option><option>5 a 6 personas</option><option>7 o más personas</option></select></label>
-        <label class="field full" for="f-det">Detalles del terreno<textarea id="f-det" name="detalles" rows="4" placeholder="Accesos para maquinaria, tipo de suelo, si la casa ya está construida, distancia a pozos o esteros..."></textarea></label>
+        <label class="field" for="f-usuarios">Personas en la vivienda<select id="f-usuarios" name="usuarios"><option value="No lo sé">No lo sé</option><option value="1 a 2 personas">1 a 2 personas</option><option value="3 a 4 personas">3 a 4 personas</option><option value="5 a 6 personas">5 a 6 personas</option><option value="7 o más personas">7 o más personas</option></select></label>
+        <label class="field full" for="f-det">Detalles del terreno<textarea id="f-det" name="detalles" rows="4" maxlength="1800" placeholder="Accesos para maquinaria, tipo de suelo, si la casa ya está construida, distancia a pozos o esteros..."></textarea></label>
       </div>
+      <p hidden aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden"><label>Fax <input name="fax" tabindex="-1" autocomplete="off"></label></p>
       <button class="btn btn-green" type="submit">Enviar por WhatsApp <svg class="ico"><use href="#i-arrow"/></svg></button>
       <p class="fine">La fecha indicada es una preferencia, no una reserva. La factibilidad del sistema y los requisitos sanitarios se evalúan en cada proyecto.</p>
       <div class="result" id="result" hidden aria-live="polite"></div>
@@ -680,6 +681,44 @@ p{margin:0}
 <script>
 // CONFIGURACIÓN: número oficial de WhatsApp con código de país, sin + ni espacios. Ej: '56912345678'
 const CONFIG = { whatsapp: '56957674277' };
+
+// Cynx: each valid quote request is also saved in the Eco Fosas portal.
+// Keep the body as URLSearchParams with no extra headers: a simple CORS request (no preflight)
+// that survives the phone switching to WhatsApp.
+const CYNX_FORM_URL = 'https://app.cyn-x.com/api/v1/forms/fdc5c3d73c36931b8e7dc0cecb61674a/quote-requests';
+
+function sendToCynx(form) {
+  const data = new FormData(form);
+  const get = (name) => String(data.get(name) || '').trim();
+  const date = get('fecha') ? get('fecha').split('-').reverse().join('-') : '';
+  const message = [
+    ['Región', get('region')],
+    ['Fecha preferida', date],
+    ['Personas en la vivienda', get('usuarios')],
+    ['Detalles del terreno', get('detalles')],
+  ].filter(([, value]) => value !== '').map(([label, value]) => label + ': ' + value).join('\n');
+
+  fetch(CYNX_FORM_URL, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json', 'Accept-Language': 'es' },
+    body: new URLSearchParams({
+      name: get('nombre'),
+      phone: get('telefono'),
+      email: get('correo'),
+      comuna: get('comuna'),
+      service: get('tipo'),
+      message: message,
+      fax: get('fax'),
+    }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+// Same rule as Cynx: 9 digits, 56 + 9 digits, or + and a country code (8-15 digits)
+function phoneIsValid(typed) {
+  const digits = typed.replace(/[\s().-]/g, '');
+  return /^\+\d{8,15}$/.test(digits) || /^56\d{9}$/.test(digits) || /^\d{9}$/.test(digits);
+}
 
 (function(){
   const T = s => (window.EF_T ? window.EF_T(s) : s);
@@ -740,9 +779,19 @@ const CONFIG = { whatsapp: '56957674277' };
       out.innerHTML = '<strong>' + T('Faltan datos') + '</strong>' + T('Completa:') + ' ' + bad.map(el => el.closest('label').firstChild.textContent.replace(' *','').trim()).join(', ') + '.';
       bad[0].focus(); return;
     }
+    const tel = form.telefono, mail = form.correo, wrong = [];
+    if (!phoneIsValid(tel.value)) wrong.push([tel, T('El teléfono debe tener 9 dígitos, o + y el código de país.')]);
+    if (mail.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail.value.trim())) wrong.push([mail, T('El correo electrónico no es válido.')]);
+    if (wrong.length) {
+      out.hidden = false;
+      out.innerHTML = '<strong>' + T('Revisa los datos') + '</strong>' + wrong.map(w => w[1]).join(' ');
+      wrong[0][0].focus(); return;
+    }
     const d = new FormData(form);
+    // selects carry Spanish values for Cynx; the WhatsApp text keeps what the visitor sees
+    const shown = k => { const el = form.elements[k]; return el.tagName === 'SELECT' ? (el.value && el.options[el.selectedIndex].text) : d.get(k); };
     const rows = [['Nombre','nombre'],['Teléfono','telefono'],['Correo','correo'],['Región','region'],['Comuna','comuna'],['Servicio','tipo'],['Fecha preferida','fecha'],['Personas','usuarios'],['Detalles','detalles']];
-    const msg = T('Hola Eco Fosas, quiero solicitar una cotización.') + '\n\n' + rows.map(([l,k]) => T(l) + ': ' + (d.get(k) || T('No indicado'))).join('\n');
+    const msg = T('Hola Eco Fosas, quiero solicitar una cotización.') + '\n\n' + rows.map(([l,k]) => T(l) + ': ' + (shown(k) || T('No indicado'))).join('\n');
     out.hidden = false;
     const pre = document.createElement('pre'); pre.textContent = msg;
     out.innerHTML = '';
@@ -753,7 +802,9 @@ const CONFIG = { whatsapp: '56957674277' };
       const a = document.createElement('a'); a.className = 'btn btn-yellow'; a.target = '_blank'; a.rel = 'noopener';
       a.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg); a.textContent = T('Abrir WhatsApp');
       row.append(a);
-      // opens straight away; the button above stays as a fallback if the browser blocks it
+      // save a copy in Cynx without waiting, then open WhatsApp straight away;
+      // the button above stays as a fallback if the browser blocks it
+      sendToCynx(form);
       window.open(a.href, '_blank', 'noopener');
     }
     const c = document.createElement('button'); c.type = 'button'; c.className = 'btn btn-green'; c.textContent = T('Copiar solicitud');
@@ -851,6 +902,7 @@ const CONFIG = { whatsapp: '56957674277' };
     "Idioma":"Language",
     /* mensajes del formulario */
     "Faltan datos":"Missing information","Completa:":"Please fill in:","No indicado":"Not provided",
+    "Revisa los datos":"Please check your details","El teléfono debe tener 9 dígitos, o + y el código de país.":"The phone number needs 9 digits, or + and the country code.","El correo electrónico no es válido.":"The email address is not valid.",
     "Hola Eco Fosas, quiero solicitar una cotización.":"Hi Eco Fosas, I'd like to request a quote.",
     "Hola Eco Fosas, quiero cotizar una fosa séptica.":"Hi Eco Fosas, I'd like a quote for a septic tank.",
     "Nombre":"Name","Teléfono":"Phone","Correo":"Email","Región":"Region","Comuna":"Town","Servicio":"Service","Personas":"People","Detalles":"Details",
