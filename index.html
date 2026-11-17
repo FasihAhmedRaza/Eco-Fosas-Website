@@ -231,7 +231,8 @@ p{margin:0}
 .fine{font-size:12px;color:var(--muted);margin-top:14px}
 .result{margin-top:16px;padding:18px;border-radius:14px;background:var(--mint);border:1px solid var(--mint-2);font-size:14px}
 .result strong{display:block;margin-bottom:6px;color:var(--ink)}
-.result .saved{margin-bottom:12px;padding:10px 12px;border-radius:10px;background:var(--white);border:1px solid var(--mint-2);color:var(--green);font-weight:700}
+.result.ok strong{color:var(--green)}
+.result p{margin:0 0 12px}
 .result pre{white-space:pre-wrap;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--white);border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0;max-height:220px;overflow:auto}
 .result .row{display:flex;gap:8px;flex-wrap:wrap}
 .result .btn{width:auto;margin:0;padding:11px 18px;font-size:14px}
@@ -604,7 +605,7 @@ p{margin:0}
     <div class="quote-side">
       <span class="eyebrow">Cotización</span>
       <h2 class="h2">Empecemos tu proyecto.</h2>
-      <p class="lead">Completa el formulario con lo que sabes de tu terreno. Preparamos tu solicitud para enviarla directo a nuestro WhatsApp.</p>
+      <p class="lead">Completa el formulario con lo que sabes de tu terreno. Recibimos tu solicitud al instante y, si quieres, también puedes enviarla por WhatsApp.</p>
       <ul class="checks">
         <li><svg class="ico"><use href="#i-check"/></svg>Solicitud sin compromiso</li>
         <li><svg class="ico"><use href="#i-check"/></svg>Respuesta con alcance y presupuesto</li>
@@ -628,7 +629,7 @@ p{margin:0}
         <label class="field full" for="f-det">Detalles del terreno<textarea id="f-det" name="detalles" rows="4" maxlength="1800" placeholder="Accesos para maquinaria, tipo de suelo, si la casa ya está construida, distancia a pozos o esteros..."></textarea></label>
       </div>
       <p hidden aria-hidden="true" style="position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden"><label>Fax <input name="fax" tabindex="-1" autocomplete="off"></label></p>
-      <button class="btn btn-green" type="submit">Enviar por WhatsApp <svg class="ico"><use href="#i-arrow"/></svg></button>
+      <button class="btn btn-green" type="submit">Enviar solicitud <svg class="ico"><use href="#i-arrow"/></svg></button>
       <p class="fine">La fecha indicada es una preferencia, no una reserva. La factibilidad del sistema y los requisitos sanitarios se evalúan en cada proyecto.</p>
       <div class="result" id="result" hidden aria-live="polite"></div>
     </form>
@@ -797,35 +798,41 @@ function phoneIsValid(typed) {
     const shown = k => { const el = form.elements[k]; return el.tagName === 'SELECT' ? (el.value && el.options[el.selectedIndex].text) : d.get(k); };
     const rows = [['Nombre','nombre'],['Teléfono','telefono'],['Correo','correo'],['Región','region'],['Comuna','comuna'],['Servicio','tipo'],['Fecha preferida','fecha'],['Personas','usuarios'],['Detalles','detalles']];
     const msg = T('Hola Eco Fosas, quiero solicitar una cotización.') + '\n\n' + rows.map(([l,k]) => T(l) + ': ' + (shown(k) || T('No indicado'))).join('\n');
-    out.hidden = false;
-    const pre = document.createElement('pre'); pre.textContent = msg;
-    out.innerHTML = '';
-    const t = document.createElement('strong');
-    t.textContent = CONFIG.whatsapp ? T('Abrimos WhatsApp con tu solicitud: presiona enviar. Si no se abrió, toca el botón.') : T('Tu solicitud está lista. Cópiala y envíala a nuestro WhatsApp.');
-    const row = document.createElement('div'); row.className = 'row';
-    if (CONFIG.whatsapp) {
+    // 1) save the request in Cynx; 2) then offer WhatsApp for a faster reply.
+    // If Cynx could not save it, WhatsApp (or copying the text) is how the request still reaches us.
+    const btn = form.querySelector('[type=submit]'), label = btn.firstChild.textContent;
+    btn.disabled = true; btn.firstChild.textContent = T('Enviando…') + ' ';
+    out.hidden = true;
+    sendToCynx(form).then(saved => {
+      btn.disabled = false; btn.firstChild.textContent = label;
+      out.innerHTML = ''; out.hidden = false;
+      const t = document.createElement('strong');
+      const p = document.createElement('p');
+      const row = document.createElement('div'); row.className = 'row';
       const a = document.createElement('a'); a.className = 'btn btn-yellow'; a.target = '_blank'; a.rel = 'noopener';
-      a.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg); a.textContent = T('Abrir WhatsApp');
+      a.href = 'https://wa.me/' + CONFIG.whatsapp + '?text=' + encodeURIComponent(msg); a.textContent = T('Enviar por WhatsApp');
       row.append(a);
-      // save a copy in Cynx without waiting, then open WhatsApp straight away;
-      // the button above stays as a fallback if the browser blocks it.
-      // The "received" note appears only once Cynx confirms it saved the request.
-      sendToCynx(form).then(saved => {
-        if (!saved) return;
-        const note = document.createElement('p'); note.className = 'saved';
-        note.textContent = T('También recibimos tu solicitud. Nuestro equipo te contactará pronto.');
-        out.prepend(note);
-      });
-      window.open(a.href, '_blank', 'noopener');
-    }
-    const c = document.createElement('button'); c.type = 'button'; c.className = 'btn btn-green'; c.textContent = T('Copiar solicitud');
-    c.onclick = async () => {
-      try { await navigator.clipboard.writeText(msg); c.textContent = T('Copiada'); }
-      catch { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); c.textContent = T('Texto seleccionado'); }
-    };
-    row.append(c);
-    out.append(t, pre, row);
-    out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (saved) {
+        out.className = 'result ok';
+        t.textContent = T('¡Recibimos tu solicitud! Nuestro equipo te contactará pronto.');
+        p.textContent = T('¿Quieres enviarla también por WhatsApp para una respuesta más rápida?');
+        form.reset();
+        out.append(t, p, row);
+      } else {
+        out.className = 'result';
+        t.textContent = T('No pudimos enviar tu solicitud desde la web.');
+        p.textContent = T('Envíala por WhatsApp para que no se pierda:');
+        const pre = document.createElement('pre'); pre.textContent = msg;
+        const c = document.createElement('button'); c.type = 'button'; c.className = 'btn btn-green'; c.textContent = T('Copiar solicitud');
+        c.onclick = async () => {
+          try { await navigator.clipboard.writeText(msg); c.textContent = T('Copiada'); }
+          catch { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); c.textContent = T('Texto seleccionado'); }
+        };
+        row.append(c);
+        out.append(t, p, pre, row);
+      }
+      out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
   });
 })();
 </script>
@@ -878,14 +885,14 @@ function phoneIsValid(typed) {
     "Trabajamos en sectores rurales, parcelas y loteos de ambas regiones. Envíanos tu ubicación y te confirmamos factibilidad y disponibilidad.":"We work in rural areas, plots and subdivisions in both regions. Send us your location and we'll confirm feasibility and availability.",
     "Consultar mi sector":"Check my area",
     "Cotización":"Quote","Empecemos tu proyecto.":"Let's start your project.",
-    "Completa el formulario con lo que sabes de tu terreno. Preparamos tu solicitud para enviarla directo a nuestro WhatsApp.":"Fill in the form with what you know about your land. We'll prepare your request so you can send it straight to our WhatsApp.",
+    "Completa el formulario con lo que sabes de tu terreno. Recibimos tu solicitud al instante y, si quieres, también puedes enviarla por WhatsApp.":"Fill in the form with what you know about your land. We receive your request instantly, and you can also send it on WhatsApp if you like.",
     "Solicitud sin compromiso":"No-obligation request","Respuesta con alcance y presupuesto":"Reply with scope and budget","Fecha sujeta a confirmación del equipo":"Date subject to our team's confirmation","Atención en Ñuble y Maule":"Serving Ñuble and Maule",
     "¿Prefieres hablar directo?":"Prefer to talk directly?","Escríbenos por WhatsApp con tu comuna y una foto del terreno, y te orientamos.":"Message us on WhatsApp with your town and a photo of the land, and we'll point you in the right direction.",
     "Solicitar cotización o visita":"Request a quote or site visit","Los campos con * son obligatorios.":"Fields marked * are required.",
     "Nombre y apellido *":"Full name *","Teléfono / WhatsApp *":"Phone / WhatsApp *","Correo electrónico":"Email","Región *":"Region *","Selecciona":"Select","Otra región":"Other region",
     "Comuna o localidad *":"Town or locality *","Servicio *":"Service *","Instalación completa de fosa séptica":"Complete septic tank installation","Evaluación de terreno":"Site assessment","Drenes o tuberías":"Drains or piping","Otro proyecto":"Other project",
     "Fecha preferida":"Preferred date","Personas en la vivienda":"People in the home","No lo sé":"I don't know","1 a 2 personas":"1 to 2 people","3 a 4 personas":"3 to 4 people","5 a 6 personas":"5 to 6 people","7 o más personas":"7 or more people",
-    "Detalles del terreno":"Site details","Enviar por WhatsApp":"Send via WhatsApp",
+    "Detalles del terreno":"Site details","Enviar por WhatsApp":"Send on WhatsApp","Enviar solicitud":"Send request","Enviando…":"Sending…",
     "La fecha indicada es una preferencia, no una reserva. La factibilidad del sistema y los requisitos sanitarios se evalúan en cada proyecto.":"The date you choose is a preference, not a booking. System feasibility and health requirements are assessed for each project.",
     "Preguntas frecuentes":"Frequently asked questions","Resolvemos tus dudas.":"Your questions, answered.",
     "¿Qué incluye el servicio?":"What does the service include?",
@@ -913,12 +920,12 @@ function phoneIsValid(typed) {
     "Idioma":"Language",
     /* mensajes del formulario */
     "Faltan datos":"Missing information","Completa:":"Please fill in:","No indicado":"Not provided",
-    "Revisa los datos":"Please check your details","También recibimos tu solicitud. Nuestro equipo te contactará pronto.":"We've also received your request. Our team will contact you shortly.","El teléfono debe tener 9 dígitos, o + y el código de país.":"The phone number needs 9 digits, or + and the country code.","El correo electrónico no es válido.":"The email address is not valid.",
+    "Revisa los datos":"Please check your details","El teléfono debe tener 9 dígitos, o + y el código de país.":"The phone number needs 9 digits, or + and the country code.","El correo electrónico no es válido.":"The email address is not valid.",
     "Hola Eco Fosas, quiero solicitar una cotización.":"Hi Eco Fosas, I'd like to request a quote.",
     "Hola Eco Fosas, quiero cotizar una fosa séptica.":"Hi Eco Fosas, I'd like a quote for a septic tank.",
     "Nombre":"Name","Teléfono":"Phone","Correo":"Email","Región":"Region","Comuna":"Town","Servicio":"Service","Personas":"People","Detalles":"Details",
-    "Abrimos WhatsApp con tu solicitud: presiona enviar. Si no se abrió, toca el botón.":"We opened WhatsApp with your request: press send. If it didn't open, tap the button.",
-    "Tu solicitud está lista. Cópiala y envíala a nuestro WhatsApp.":"Your request is ready. Copy it and send it to our WhatsApp.",
+    "¡Recibimos tu solicitud! Nuestro equipo te contactará pronto.":"We've received your request! Our team will contact you shortly.","¿Quieres enviarla también por WhatsApp para una respuesta más rápida?":"Would you also like to send it on WhatsApp for a faster reply?",
+    "No pudimos enviar tu solicitud desde la web.":"We couldn't send your request from the website.","Envíala por WhatsApp para que no se pierda:":"Please send it on WhatsApp so it doesn't get lost:",
     "Abrir WhatsApp":"Open WhatsApp","Copiar solicitud":"Copy request","Copiada":"Copied","Texto seleccionado":"Text selected"
   };
   const META = {

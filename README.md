@@ -18,7 +18,7 @@ The official number, +56 9 5767 4277, is set in `index.html` near the end:
 const CONFIG = { whatsapp: '56957674277' };
 ```
 
-To change it, use the country code 56, without the `+` sign, dashes or spaces. The quote form opens WhatsApp with a pre-filled message, but it does **NOT** create or confirm a booking automatically. The number is also written out by hand in the "¿Prefieres hablar directo?" card and the footer.
+To change it, use the country code 56, without the `+` sign, dashes or spaces. The quote form first saves the request in the Cynx portal (`sendToCynx()` in `index.html`). Once Cynx confirms it, the visitor is offered an optional "Enviar por WhatsApp" button with a pre-filled message; if Cynx cannot save it, the visitor is asked to send it on WhatsApp instead. Neither step creates or confirms a booking. The number is also written out by hand in the "¿Prefieres hablar directo?" card and the footer.
 
 ## Real bookings
 
